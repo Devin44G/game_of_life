@@ -3,6 +3,7 @@ import produce from 'immer';
 
 
 const Grid = () => {
+/******** PRE-DEFINED FUNCTIONS TO USE ********/
   const colNum = 25;
   const rowNum = 25;
   const operations = [
@@ -15,16 +16,38 @@ const Grid = () => {
     [1, 0],
     [-1, 0]
   ];
+  const createGrid = () => {
+    const rows = [];
+    for(let i = 0; i < colNum; i++) {
+      rows.push(Array.from(Array(rowNum), () => 0));
+    }
+    return rows;
+  }
 
+/******** SETTING STATE ********/
+  const [speed, setSpeed] = useState(1000);
   const [started, setStarted] = useState(false);
+  const [grid, setGrid] = useState(() => {
+    return createGrid();
+  });
+
+/******** SETTING REFS ********/
   const startedRef = useRef(started);
         startedRef.current = started;
+  const speedRef = useRef(speed);
+        speedRef.current = speed;
 
+/******** CHANGE HANDLERS ********/
+  const handleSpeed = (e) => {
+    e.preventDefault();
+    setSpeed(e.target.value);
+  }
+
+/******** ANIMATION FUNCTION ********/
   const runAnim = useCallback(() => {
     if(!startedRef.current) {
       return;
     }
-
     setGrid((grid) => {
       return produce(grid, gridCopy => {
         for(let i = 0; i < rowNum; i++) {
@@ -48,19 +71,13 @@ const Grid = () => {
       });
     });
 
-    setTimeout(runAnim, 1000);
-  }, [operations]);
+    setTimeout(runAnim, speedRef.current);
+  }, [operations, speed]);
 
-  const [grid, setGrid] = useState(() => {
-    const rows = [];
-    for(let i = 0; i < colNum; i++) {
-      rows.push(Array.from(Array(rowNum), () => 0));
-    }
-    return rows;
-  });
-
+/******** UI BEGINS ********/
   return(
     <>
+      {/* BUTTONS */}
       <button
         onClick={() => {
           setStarted(!started);
@@ -69,13 +86,42 @@ const Grid = () => {
             runAnim();
           }
         }}
-      >{started ? 'Stop' : 'Start'}</button>
+      >
+        {started ? 'Stop' : 'Start'}
+      </button>
+      <button
+        onClick={() => {
+          const rows = [];
+          for(let i = 0; i < colNum; i++) {
+            rows.push(Array.from(Array(rowNum), () => Math.random() > .7 ? 1 : 0));
+          }
+          setGrid(rows);
+        }}
+      >
+        Random
+      </button>
+      <button
+        onClick={() => {
+          setGrid(createGrid());
+        }}
+      >
+        Clear
+      </button>
+      {/* SPEED SELECTION */}
+      <select name="speed" value={speed} onChange={handleSpeed}>
+        <option value={1000}>Normal</option>
+        <option value={1500}>Slow</option>
+        <option value={500}>Fast</option>
+        <option value={200}>Very Fast</option>
+        <option value={0}>Ultra Fast</option>
+      </select>
+      {/* THE GRID */}
       <div
         style={{
           marginTop: '2rem',
           marginBottom: '2rem',
           display: 'grid',
-        gridTemplateColumns: `repeat(${colNum}, 1.5rem)`,
+          gridTemplateColumns: `repeat(${colNum}, 1.5rem)`,
           justifyContent: 'center'
         }}>
         { grid.map((rows, i) =>
