@@ -26,6 +26,7 @@ const Grid = () => {
 
 /******** SETTING STATE ********/
   const [speed, setSpeed] = useState(1000);
+  const [generations, setGeneratons] = useState(0);
   const [started, setStarted] = useState(false);
   const [grid, setGrid] = useState(() => {
     return createGrid();
@@ -36,11 +37,16 @@ const Grid = () => {
         startedRef.current = started;
   const speedRef = useRef(speed);
         speedRef.current = speed;
+  const generationsRef = useRef(generations);
+        generationsRef.current = generations;
 
 /******** CHANGE HANDLERS ********/
   const handleSpeed = (e) => {
     e.preventDefault();
     setSpeed(e.target.value);
+  }
+  const handleGen = () => {
+    setGeneratons(generationsRef.current += 1);
   }
 
 /******** ANIMATION FUNCTION ********/
@@ -70,9 +76,10 @@ const Grid = () => {
         }
       });
     });
+    handleGen();
 
     setTimeout(runAnim, speedRef.current);
-  }, [operations, speed]);
+  }, [operations]);
 
 /******** UI BEGINS ********/
   return(
@@ -103,6 +110,7 @@ const Grid = () => {
       <button
         onClick={() => {
           setGrid(createGrid());
+          setGeneratons(0);
         }}
       >
         Clear
@@ -115,6 +123,7 @@ const Grid = () => {
         <option value={200}>Very Fast</option>
         <option value={0}>Ultra Fast</option>
       </select>
+      <h3>{generationsRef.current}</h3>
       {/* THE GRID */}
       <div
         style={{
