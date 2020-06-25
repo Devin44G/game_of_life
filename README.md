@@ -16,6 +16,6 @@
 - [ ] Extra features
   - [ ] Produce pre-set <b>*Still Lifes*</b>
   - [ ] Produce pre-set <b>*Oscillators*</b>
-  - [ ] Implement "click-through" animation (click through game, one step at a time)
+  - [x] Implement "click-through" animation (click through game, one step at a time)
   - [ ] Users can define grid size
-- [ ] Game complete
+- [x] Base Game complete

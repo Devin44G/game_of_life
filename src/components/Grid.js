@@ -25,9 +25,12 @@ const Grid = () => {
   }
 
 /******** SETTING STATE ********/
+  // const [colNum, setColNum] = useState(25);
+  // const [rowNum, setRowNum] = useState(25);
   const [speed, setSpeed] = useState(1000);
   const [generations, setGeneratons] = useState(0);
   const [started, setStarted] = useState(false);
+  const [stepThrough, setStepThrough] = useState(false);
   const [grid, setGrid] = useState(() => {
     return createGrid();
   });
@@ -35,6 +38,8 @@ const Grid = () => {
 /******** SETTING REFS ********/
   const startedRef = useRef(started);
         startedRef.current = started;
+  const stepThroughRef = useRef(stepThrough);
+        stepThroughRef.current = stepThrough;
   const speedRef = useRef(speed);
         speedRef.current = speed;
   const generationsRef = useRef(generations);
@@ -48,12 +53,14 @@ const Grid = () => {
   const handleGen = () => {
     setGeneratons(generationsRef.current += 1);
   }
+  // const handleGridSize = (e) => {
+  //   setRowNum(e.target.value);
+  //   setColNum(e.target.value);
+  //   createGrid();
+  // }
 
 /******** ANIMATION FUNCTION ********/
-  const runAnim = useCallback(() => {
-    if(!startedRef.current) {
-      return;
-    }
+  function anim() {
     setGrid((grid) => {
       return produce(grid, gridCopy => {
         for(let i = 0; i < rowNum; i++) {
@@ -77,15 +84,29 @@ const Grid = () => {
       });
     });
     handleGen();
+  }
+
+  const runAnim = useCallback(() => {
+    if(!startedRef.current) {
+      return;
+    }
+    anim();
 
     setTimeout(runAnim, speedRef.current);
   }, [operations]);
 
+  const clickThroughAnim = useCallback(() => {
+    if(!stepThroughRef.current) {
+      return;
+    }
+    anim();
+  }, [operations]);
+
 /******** UI BEGINS ********/
   return(
-    <>
+    <div style={{textAlign: 'center', marginTop: '2rem'}}>
       {/* BUTTONS */}
-      <button
+      <button style={{paddingRight:'1rem', paddingLeft:'1rem', marginRight:'.5rem'}}
         onClick={() => {
           setStarted(!started);
           if(!started) {
@@ -96,7 +117,7 @@ const Grid = () => {
       >
         {started ? 'Stop' : 'Start'}
       </button>
-      <button
+      <button style={{paddingRight:'1rem', paddingLeft:'1rem', marginRight:'.5rem'}}
         onClick={() => {
           const rows = [];
           for(let i = 0; i < colNum; i++) {
@@ -107,7 +128,7 @@ const Grid = () => {
       >
         Random
       </button>
-      <button
+      <button style={{paddingRight:'1rem', paddingLeft:'1rem', marginRight:'.5rem'}}
         onClick={() => {
           setGrid(createGrid());
           setGeneratons(0);
@@ -115,15 +136,28 @@ const Grid = () => {
       >
         Clear
       </button>
+      <button style={{paddingRight:'1rem', paddingLeft:'1rem', marginRight:'.5rem'}}
+        onClick={() => {
+          setStepThrough(true);
+          if(stepThrough === true) {
+            stepThroughRef.current = true;
+            clickThroughAnim();
+          }
+        }}
+      >
+        Next Gen
+      </button>
       {/* SPEED SELECTION */}
       <select name="speed" value={speed} onChange={handleSpeed}>
+        <option value={1000}>--Select a Speed--</option>
         <option value={1000}>Normal</option>
         <option value={1500}>Slow</option>
         <option value={500}>Fast</option>
         <option value={200}>Very Fast</option>
         <option value={0}>Ultra Fast</option>
       </select>
-      <h3>{generationsRef.current}</h3>
+      {/* GENERATION TRACKER */}
+      <h3>Generation: {generationsRef.current}</h3>
       {/* THE GRID */}
       <div
         style={{
@@ -151,7 +185,7 @@ const Grid = () => {
             </div>)
         )}
       </div>
-    </>
+    </div>
   );
 };
 
